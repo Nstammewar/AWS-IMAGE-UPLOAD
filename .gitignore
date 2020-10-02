@@ -31,3 +31,12 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### MVN ###
+
+.mvn/
+mvnw
+mvnw.cmd
+
+###Auth Properties###
+**/resources/auth.properties
