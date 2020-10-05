@@ -1,22 +1,74 @@
-import React,{useState,useEffect} from 'react';
-import logo from './logo.svg';
+import React,{useState,useEffect,useCallback} from 'react';
 import './App.css';
 import axios from 'axios';
+import { useDropzone } from 'react-dropzone';
 
 const UserProfiles = () =>{
-    const fetchUserProfiles =() => {
-        axios.get("https://192.168.0.108.:1111/api/v1/user-profile").then(res => {
-            console.log(res);
-        });
-    };
+  const[userProfiles, setUserProfiles] = useState([]);
+  const fetchUserProfiles =() => {
+      axios.get('http://localhost:1111/api/v1/user-profile').then(res => {
+        console.log(res);
+        setUserProfiles(res.data);
+      });
+  };
     useEffect(() => {
             fetchUserProfiles();
     },[])
-    
-    return <h1>Hello</h1>
+
+    return userProfiles.map((userProfile, index) => {
+      return (
+        <div key={index}>
+          {/* todo: profile image */}
+          {userProfile.userProfileId ? <img src={`http://localhost:1111/api/v1/user-profile/${userProfile.userProfileId}/image/download`}/>:null}
+          <br/>
+          <br/>
+          <h1>{userProfile.username}</h1>
+          <p> {userProfile.userProfileId}</p>
+          <br/>
+          <Dropzone {...userProfile}/>
+         
+        </div>
+      )
+    })
 }
 
+function  Dropzone({userProfileId}) {
+  const onDrop = useCallback(acceptedFiles =>{
 
+    const file=acceptedFiles[0];
+
+    console.log(file);
+    
+    console.log(userProfileId);
+
+    const formData = new FormData();
+    formData.append("file",file);
+
+    axios.post(`http://localhost:1111/api/v1/user-profile/${userProfileId}/image/upload`,formData,
+    {
+      headers: {
+        "Content-Type":"multipart/form-data"
+      }
+    }).then((res) => {
+      console.log(" file uploaded successfully ",res)
+    }).catch(error =>{
+      console.error(error);
+    })
+
+  },[]);
+  const {getRootProps,getInputProps, isDragActive} = useDropzone({onDrop});
+  
+  return(
+    <div {...getRootProps()}>
+      <input {...getInputProps()} />
+      {isDragActive ? (
+          <p>Drop the image here ...</p> 
+      ) : (
+          <p>Drag 'n' drop profile image, or click to select profile image</p>
+      )}
+    </div>
+  )
+}
 function App() {
   return (
     <div className="App">

@@ -18,12 +18,12 @@ public class AmazonConfig {
 	private String secretKey;
 	@Bean
 	public AmazonS3 s3() {
-		System.out.println(accessKey+"   "+secretKey);
+
 		AWSCredentials awsCredentials= new BasicAWSCredentials(
 				accessKey,secretKey
 				);
 		return AmazonS3ClientBuilder
-				.standard().withRegion("us-east-1")
+				.standard().withRegion("ap-south-1")
 				.withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
 				.build();
 		

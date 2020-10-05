@@ -1,9 +1,13 @@
 package com.reactInmage.aws_image_upload.filestore;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Optional;
 
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,9 +36,20 @@ public class FileStore {
 			}
 		});
 		try {
+			System.out.println(path+"::  :: "+fileName);
 			s3.putObject(path,fileName,inputStream,metaData);
 		}catch(AmazonServiceException e) {
 			throw new IllegalStateException("failed to store file to s3",e);
+		}
+	}
+
+	public byte[] download(String path,String key) {
+		try{
+			S3Object object = s3.getObject(path, key);
+			S3ObjectInputStream inputStream = object.getObjectContent();
+			return IOUtils.toByteArray(inputStream);
+		}catch (AmazonServiceException | IOException e){
+			throw new IllegalStateException("Failed to download file to s3",e);
 		}
 	}
 }
